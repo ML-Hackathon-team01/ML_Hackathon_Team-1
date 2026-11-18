@@ -1,0 +1,172 @@
+{
+  "order": 2,
+  "model_name": "Decision Tree",
+  "owner": "Neal",
+  "algorithm_family": "Tree-based",
+  "key_configuration": "DecisionTreeClassifier(criterion=gini, max_depth=12, min_samples_leaf=50)",
+  "cv": {
+    "macro_f1_mean": 0.69963,
+    "macro_f1_std": 0.04738,
+    "top1_accuracy_mean": 0.63872,
+    "log_loss_mean": 0.54312,
+    "folds": [
+      {
+        "candidate_accuracy": 0.67598,
+        "macro_f1": 0.61879,
+        "pos_f1": 0.47114,
+        "pos_precision": 0.43125,
+        "pos_recall": 0.51917,
+        "confusion_matrix": [
+          [
+            110973,
+            39733
+          ],
+          [
+            27902,
+            30127
+          ]
+        ],
+        "log_loss": 0.5976,
+        "n_observations": 41747,
+        "top1_accuracy": 0.42988,
+        "top1_accuracy_covered_only": 0.61312,
+        "candidate_miss_rate": 0.29887,
+        "route_continuity": null,
+        "fold": 0,
+        "train_time_s": 14.586
+      },
+      {
+        "candidate_accuracy": 0.72488,
+        "macro_f1": 0.69196,
+        "pos_f1": 0.59127,
+        "pos_precision": 0.66056,
+        "pos_recall": 0.53513,
+        "confusion_matrix": [
+          [
+            109750,
+            21340
+          ],
+          [
+            36076,
+            41529
+          ]
+        ],
+        "log_loss": 0.54109,
+        "n_observations": 41739,
+        "top1_accuracy": 0.6499,
+        "top1_accuracy_covered_only": 0.71145,
+        "candidate_miss_rate": 0.08651,
+        "route_continuity": null,
+        "fold": 1,
+        "train_time_s": 13.725
+      },
+      {
+        "candidate_accuracy": 0.72518,
+        "macro_f1": 0.69855,
+        "pos_f1": 0.60895,
+        "pos_precision": 0.70117,
+        "pos_recall": 0.53817,
+        "confusion_matrix": [
+          [
+            106680,
+            19031
+          ],
+          [
+            38320,
+            44654
+          ]
+        ],
+        "log_loss": 0.55181,
+        "n_observations": 41737,
+        "top1_accuracy": 0.68294,
+        "top1_accuracy_covered_only": 0.7282,
+        "candidate_miss_rate": 0.06215,
+        "route_continuity": null,
+        "fold": 2,
+        "train_time_s": 13.268
+      },
+      {
+        "candidate_accuracy": 0.7824,
+        "macro_f1": 0.76201,
+        "pos_f1": 0.69234,
+        "pos_precision": 0.70147,
+        "pos_recall": 0.68344,
+        "confusion_matrix": [
+          [
+            111323,
+            21577
+          ],
+          [
+            23484,
+            50701
+          ]
+        ],
+        "log_loss": 0.45998,
+        "n_observations": 41417,
+        "top1_accuracy": 0.69317,
+        "top1_accuracy_covered_only": 0.82516,
+        "candidate_miss_rate": 0.15996,
+        "route_continuity": null,
+        "fold": 3,
+        "train_time_s": 13.072
+      },
+      {
+        "candidate_accuracy": 0.7446,
+        "macro_f1": 0.72683,
+        "pos_f1": 0.65717,
+        "pos_precision": 0.75622,
+        "pos_recall": 0.58106,
+        "confusion_matrix": [
+          [
+            104404,
+            16483
+          ],
+          [
+            36866,
+            51132
+          ]
+        ],
+        "log_loss": 0.5651,
+        "n_observations": 41777,
+        "top1_accuracy": 0.73773,
+        "top1_accuracy_covered_only": 0.78715,
+        "candidate_miss_rate": 0.06279,
+        "route_continuity": null,
+        "fold": 4,
+        "train_time_s": 9.037
+      }
+    ]
+  },
+  "train_fit": {
+    "macro_f1": 0.73371,
+    "top1_accuracy": 0.66481,
+    "log_loss": 0.48943
+  },
+  "student_test": {
+    "candidate_accuracy": 0.74833,
+    "macro_f1": 0.73442,
+    "pos_f1": 0.67363,
+    "pos_precision": 0.75177,
+    "pos_recall": 0.61021,
+    "confusion_matrix": [
+      [
+        46808,
+        8216
+      ],
+      [
+        15894,
+        24882
+      ]
+    ],
+    "log_loss": 0.55042,
+    "n_observations": 19160,
+    "top1_accuracy": 0.75945,
+    "top1_accuracy_covered_only": 0.80105,
+    "candidate_miss_rate": 0.05193,
+    "route_continuity": 0.76193
+  },
+  "timing": {
+    "train_time_s": 10.838,
+    "inference_time_s": 0.0246
+  }
+}

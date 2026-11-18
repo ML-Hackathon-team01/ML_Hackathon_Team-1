@@ -22,3 +22,8 @@ student_test/
 # System files
 .DS_Store
 Thumbs.db
+
+# Large generated intermediate datasets (regenerate via prepare_dataset.py)
+results/pathsnap_ml_dataset.csv
+results/pathsnap_student_test.csv
+saved_models/
