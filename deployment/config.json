@@ -1,0 +1,31 @@
+{
+  "project": "PathSnap - Team 01",
+  "api": {
+    "host": "0.0.0.0",
+    "port": 8000
+  },
+  "model": {
+    "artifact_candidates": [
+      "saved_models/tuned_gradient_boosting.joblib",
+      "saved_models/sohel_gradient_boosting.joblib"
+    ],
+    "default_model_name": "Gradient Boosting (HistGradientBoostingClassifier)",
+    "algorithm_family": "Boosting",
+    "top_k_candidates": 5
+  },
+  "data": {
+    "eval_dir_candidates": [
+      "../Student folder/evaluator_test",
+      "../Student folder/student_test"
+    ]
+  },
+  "hmm": {
+    "stay_log_prob": 0.0,
+    "connected_1hop_log_prob": -0.15,
+    "connected_2hop_log_prob": -0.65,
+    "reverse_uturn_log_prob": -4.0,
+    "gap_transition_log_prob": -1.5,
+    "disconnected_log_prob": -5.0,
+    "gps_gap_threshold_s": 5.0
+  }
+}

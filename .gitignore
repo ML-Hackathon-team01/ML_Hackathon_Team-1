@@ -26,4 +26,8 @@ Thumbs.db
 # Large generated intermediate datasets (regenerate via prepare_dataset.py)
 results/pathsnap_ml_dataset.csv
 results/pathsnap_student_test.csv
-saved_models/
+
+# Keep compact final model weights tracked; ignore bulky non-final models
+saved_models/*
+!saved_models/sohel_gradient_boosting.joblib
+!saved_models/tuned_gradient_boosting.joblib
