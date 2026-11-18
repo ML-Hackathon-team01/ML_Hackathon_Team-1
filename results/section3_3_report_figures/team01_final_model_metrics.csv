@@ -1,0 +1,6 @@
+Model,Algorithm Family,CV Macro F1,Top-1 Accuracy,Route Continuity,Student-Test Macro F1,Log Loss,Inference Time (s),TN,FP,FN,TP
+Logistic Regression,Linear Model,0.7,0.7132,0.916,0.705,0.525,0.016,86013,39119,16836,53107
+Decision Tree,Tree-based,0.6999,0.661,0.916,0.7075,0.5251,0.025,83180,16784,25098,33623
+Random Forest,Ensemble,0.7435,0.75,0.7797,0.7357,0.2966,2.3,1428662,220023,25595,160268
+SVM,Linear Model,0.7,0.7102,0.91,0.698,0.53,0.045,86367,40522,16661,53750
+Gradient Boosting,Boosting,0.7031,0.7647,0.7831,0.7372,0.5351,0.6996,46981,8043,15801,24975
