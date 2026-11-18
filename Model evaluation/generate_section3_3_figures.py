@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import folium
 
-ROOT = Path(__file__).resolve().parent
-OUT_DIR = ROOT / "results" / "section3_3_report_figures"
+ROOT = Path(__file__).resolve().parent.parent
+OUT_DIR = Path(__file__).resolve().parent / "plots"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 1. Export Team-01 Final Metrics Table (Task 1)
