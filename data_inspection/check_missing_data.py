@@ -79,7 +79,9 @@ else:
     print(missing_trips.to_string(index=False))
 
 # Save complete report
-output_file = PROJECT_ROOT / "results" / "missing_data_report.csv"
+output_dir = PROJECT_ROOT / "results"
+output_dir.mkdir(parents=True, exist_ok=True)
+output_file = output_dir / "missing_data_report.csv"
 
 results.to_csv(output_file, index=False)
 

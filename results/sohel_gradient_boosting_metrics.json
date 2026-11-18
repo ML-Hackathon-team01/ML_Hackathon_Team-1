@@ -1,0 +1,179 @@
+{
+  "order": 5,
+  "model_name": "Gradient Boosting",
+  "owner": "Sohel",
+  "algorithm_family": "Boosting",
+  "key_configuration": "HistGB(loss=log_loss, lr=0.08, max_iter=200, max_leaf_nodes=31, max_depth=8, min_samples_leaf=50, l2=1.0)",
+  "cv": {
+    "macro_f1_mean": 0.70308,
+    "macro_f1_std": 0.04836,
+    "top1_accuracy_mean": 0.64299,
+    "log_loss_mean": 0.52973,
+    "folds": [
+      {
+        "candidate_accuracy": 0.67679,
+        "macro_f1": 0.61993,
+        "pos_f1": 0.47293,
+        "pos_precision": 0.43257,
+        "pos_recall": 0.52158,
+        "confusion_matrix": [
+          [
+            111003,
+            39703
+          ],
+          [
+            27762,
+            30267
+          ]
+        ],
+        "log_loss": 0.59143,
+        "n_observations": 41747,
+        "top1_accuracy": 0.42302,
+        "top1_accuracy_covered_only": 0.60335,
+        "candidate_miss_rate": 0.29887,
+        "route_continuity": null,
+        "fold": 0,
+        "train_time_s": 18.622
+      },
+      {
+        "candidate_accuracy": 0.73067,
+        "macro_f1": 0.6972,
+        "pos_f1": 0.59654,
+        "pos_precision": 0.67337,
+        "pos_recall": 0.53544,
+        "confusion_matrix": [
+          [
+            110934,
+            20156
+          ],
+          [
+            36052,
+            41553
+          ]
+        ],
+        "log_loss": 0.52915,
+        "n_observations": 41739,
+        "top1_accuracy": 0.65809,
+        "top1_accuracy_covered_only": 0.72042,
+        "candidate_miss_rate": 0.08651,
+        "route_continuity": null,
+        "fold": 1,
+        "train_time_s": 18.14
+      },
+      {
+        "candidate_accuracy": 0.72923,
+        "macro_f1": 0.70185,
+        "pos_f1": 0.6115,
+        "pos_precision": 0.71184,
+        "pos_recall": 0.53595,
+        "confusion_matrix": [
+          [
+            107709,
+            18002
+          ],
+          [
+            38504,
+            44470
+          ]
+        ],
+        "log_loss": 0.53546,
+        "n_observations": 41737,
+        "top1_accuracy": 0.68788,
+        "top1_accuracy_covered_only": 0.73346,
+        "candidate_miss_rate": 0.06215,
+        "route_continuity": null,
+        "fold": 2,
+        "train_time_s": 17.267
+      },
+      {
+        "candidate_accuracy": 0.78792,
+        "macro_f1": 0.76651,
+        "pos_f1": 0.6958,
+        "pos_precision": 0.71559,
+        "pos_recall": 0.67708,
+        "confusion_matrix": [
+          [
+            112937,
+            19963
+          ],
+          [
+            23956,
+            50229
+          ]
+        ],
+        "log_loss": 0.44702,
+        "n_observations": 41417,
+        "top1_accuracy": 0.70065,
+        "top1_accuracy_covered_only": 0.83407,
+        "candidate_miss_rate": 0.15996,
+        "route_continuity": null,
+        "fold": 3,
+        "train_time_s": 17.341
+      },
+      {
+        "candidate_accuracy": 0.74777,
+        "macro_f1": 0.72991,
+        "pos_f1": 0.66047,
+        "pos_precision": 0.76279,
+        "pos_recall": 0.58235,
+        "confusion_matrix": [
+          [
+            104951,
+            15936
+          ],
+          [
+            36752,
+            51246
+          ]
+        ],
+        "log_loss": 0.54558,
+        "n_observations": 41777,
+        "top1_accuracy": 0.74531,
+        "top1_accuracy_covered_only": 0.79524,
+        "candidate_miss_rate": 0.06279,
+        "route_continuity": null,
+        "fold": 4,
+        "train_time_s": 18.745
+      }
+    ]
+  },
+  "train_fit": {
+    "macro_f1": 0.73055,
+    "top1_accuracy": 0.66323,
+    "log_loss": 0.49223
+  },
+  "student_test": {
+    "candidate_accuracy": 0.75111,
+    "macro_f1": 0.73724,
+    "pos_f1": 0.67688,
+    "pos_precision": 0.75641,
+    "pos_recall": 0.61249,
+    "confusion_matrix": [
+      [
+        46981,
+        8043
+      ],
+      [
+        15801,
+        24975
+      ]
+    ],
+    "log_loss": 0.53511,
+    "n_observations": 19160,
+    "top1_accuracy": 0.76472,
+    "top1_accuracy_covered_only": 0.80661,
+    "candidate_miss_rate": 0.05193,
+    "route_continuity": 0.78308
+  },
+  "timing": {
+    "train_time_s": 21.309,
+    "inference_time_s": 0.6996
+  },
+  "feature_importance": {
+    "direction_difference": 0.21373,
+    "gps_speed_mps": 0.02715,
+    "candidate_rank": 0.01576,
+    "distance_m": 0.01127,
+    "time_gap_s": -0.00011
+  }
+}

@@ -1,0 +1,2 @@
+Model,Algorithm Family,Key Configuration,CV Macro F1-score,Top-1 Accuracy,Route continuity,Student-Test Macro F1-score,Log Loss,Inference Time
+Decision Tree,Tree-based,"criterion=gini, max_depth=10, min_samples_split=20",0.6999,0.661,0.916,0.7075,0.5251,0.00 ms/1k obs
