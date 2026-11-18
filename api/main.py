@@ -1,5 +1,5 @@
 """
-PathSnap FastAPI Backend Server (Laptop 1).
+PathSnap FastAPI Backend Server (Laptop 1 — Receiving Backend).
 
 Endpoints:
   - GET  /health             : Server & model health check
@@ -7,19 +7,23 @@ Endpoints:
   - POST /predict            : Run full live ML + HMM/Viterbi inference & server-side eval
   - GET  /evaluate/{trip_id} : Convenience GET endpoint for direct testing
 
-Logs every incoming request and response summary cleanly on the receiving laptop's CMD.
+Prints clear, unbuffered, real-time incoming request & response logs on the
+receiving laptop's CMD (showing client IP from Laptop 2, step timings, metrics,
+and HTTP 200 OK) and mirrors them to `logs/api_requests.log`.
 """
 
 from __future__ import annotations
 
+import socket
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from api.model_loader import ModelRegistry
+from api.model_loader import ModelRegistry, PROJECT_ROOT
 from api.pipeline import run_trip_inference_and_evaluate
 
 app = FastAPI(
@@ -37,6 +41,8 @@ app.add_middleware(
 )
 
 registry: ModelRegistry | None = None
+LOG_FILE: Path = PROJECT_ROOT / "logs" / "api_requests.log"
+SERVER_HOST: str = socket.gethostname()
 
 
 class PredictRequest(BaseModel):
@@ -45,7 +51,14 @@ class PredictRequest(BaseModel):
 
 def _log_cmd(message: str) -> None:
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{ts}] {message}", flush=True)
+    line = f"[{ts}] {message}"
+    print(line, flush=True)
+    try:
+        LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except Exception:
+        pass
 
 
 @app.on_event("startup")
@@ -53,12 +66,13 @@ def startup_event() -> None:
     global registry
     registry = ModelRegistry()
     trips = registry.list_available_trips()
-    print("=" * 72, flush=True)
-    _log_cmd("PATHSNAP API SERVER STARTED (LAPTOP 1)")
+    print("=" * 76, flush=True)
+    _log_cmd(f"PATHSNAP API SERVER STARTED | Receiving Host: {SERVER_HOST}")
     _log_cmd(f"Loaded Model   : {registry.model_name} ({registry.model_path.name})")
     _log_cmd(f"Features ({len(registry.feature_columns)})   : {registry.feature_columns}")
     _log_cmd(f"Eval Partition : {registry.partition_name} ({len(trips)} trips in {registry.eval_dir})")
-    print("=" * 72, flush=True)
+    _log_cmd(f"Log File       : {LOG_FILE}")
+    print("=" * 76, flush=True)
 
 
 def _get_registry() -> ModelRegistry:
@@ -72,9 +86,13 @@ def health(request: Request) -> dict[str, Any]:
     reg = _get_registry()
     client_ip = request.client.host if request.client else "unknown"
     trips = reg.list_available_trips()
-    _log_cmd(f"GET /health from {client_ip} -> 200 OK (model={reg.model_path.name}, trips={len(trips)})")
+    _log_cmd(
+        f"INCOMING GET /health | Client IP: {client_ip} -> 200 OK "
+        f"(model={reg.model_path.name}, partition={reg.partition_name}, trips={len(trips)})"
+    )
     return {
         "status": "online",
+        "server_host": SERVER_HOST,
         "project": reg.config["project"],
         "model_name": reg.model_name,
         "algorithm_family": reg.algorithm_family,
@@ -90,7 +108,10 @@ def list_trips(request: Request) -> dict[str, Any]:
     reg = _get_registry()
     client_ip = request.client.host if request.client else "unknown"
     trips = reg.list_available_trips()
-    _log_cmd(f"GET /trips from {client_ip} -> 200 OK ({len(trips)} trips returned)")
+    _log_cmd(
+        f"INCOMING GET /trips  | Client IP: {client_ip} -> 200 OK "
+        f"(returned {len(trips)} trips from '{reg.partition_name}')"
+    )
     return {
         "partition": reg.partition_name,
         "count": len(trips),
@@ -100,30 +121,44 @@ def list_trips(request: Request) -> dict[str, Any]:
 
 def _execute_prediction(trip_id: str, client_ip: str, route_label: str) -> dict[str, Any]:
     reg = _get_registry()
-    _log_cmd(f"{route_label} from {client_ip} | trip_id={trip_id} | Starting live inference pipeline...")
+    print("-" * 76, flush=True)
+    _log_cmd(f"INCOMING {route_label} | Client IP (UI Laptop): {client_ip} | trip_id={trip_id}")
+    _log_cmd(f"  -> Running live pipeline on '{reg.partition_name}/{trip_id}' (NO .route exposed to model)...")
+
     try:
         result = run_trip_inference_and_evaluate(reg, trip_id)
     except FileNotFoundError as exc:
-        _log_cmd(f"ERROR 404 | trip_id={trip_id} | {exc}")
+        _log_cmd(f"RESPONSE 404 NOT FOUND | trip_id={trip_id} | {exc}")
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
-        _log_cmd(f"ERROR 500 | trip_id={trip_id} | {exc}")
+        _log_cmd(f"RESPONSE 500 ERROR     | trip_id={trip_id} | {exc}")
         raise HTTPException(status_code=500, detail=f"Inference failed: {exc}") from exc
 
     m = result["metrics"]
     t = result["timing_ms"]
+    s = result["trip_summary"]
+
     acc_str = f"{m['hmm_top1_accuracy'] * 100:.2f}%" if m["hmm_top1_accuracy"] is not None else "N/A"
     clf_acc_str = (
         f"{m['classifier_only_top1_accuracy'] * 100:.2f}%"
         if m["classifier_only_top1_accuracy"] is not None
         else "N/A"
     )
+    f1_str = f"{m['route_arc_f1'] * 100:.2f}%" if m["route_arc_f1"] is not None else "N/A"
+
     _log_cmd(
-        f"200 OK | trip_id={trip_id} | GPS={result['trip_summary']['n_gps_points']} | "
+        f"  -> Pipeline Timings : Load={t['load_and_clean_ms']:.1f}ms | "
+        f"Features={t['candidate_and_features_ms']:.1f}ms | "
+        f"GB={t['classifier_inference_ms']:.1f}ms | HMM={t['hmm_viterbi_ms']:.1f}ms"
+    )
+    _log_cmd(
+        f"  -> Server-Side Eval : GPS={s['n_gps_points']} | Reconstructed Segs={s['n_reconstructed_segments']} | "
         f"Top-1 Acc: {clf_acc_str} -> {acc_str} (HMM) | "
         f"Continuity: {m['classifier_only_route_continuity'] * 100:.2f}% -> {m['hmm_route_continuity'] * 100:.2f}% | "
-        f"Total={t['total_ms']:.1f} ms"
+        f"Route Arc F1: {f1_str}"
     )
+    _log_cmd(f"RESPONSE 200 OK | Client IP: {client_ip} | trip_id={trip_id} | Total={t['total_ms']:.1f} ms")
+    print("-" * 76, flush=True)
     return result
 
 

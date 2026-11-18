@@ -1,7 +1,20 @@
 ﻿# Start Laptop 1 — PathSnap FastAPI Backend
+# Usage (default auto-detect):
+#   .\deployment\start_laptop1_api.ps1
+# Usage (explicit evaluator demonstration dataset folder):
+#   .\deployment\start_laptop1_api.ps1 -EvalDir "C:\Users\HP\Desktop\ML\Hackthon\evaluator_test"
+param(
+    [string]$EvalDir = ""
+)
+
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
+
+if ($EvalDir -ne "") {
+    $env:PATHSNAP_EVAL_DIR = $EvalDir
+    Write-Host "Using demonstration dataset folder: $EvalDir" -ForegroundColor Magenta
+}
 
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "  PathSnap — Laptop 1 FastAPI Backend Server (Team-01)" -ForegroundColor Cyan
@@ -22,4 +35,4 @@ Write-Host "Local health check: http://127.0.0.1:8000/health" -ForegroundColor G
 Write-Host "Swagger API docs  : http://127.0.0.1:8000/docs" -ForegroundColor Gray
 Write-Host "------------------------------------------------------------" -ForegroundColor Cyan
 
-python -m uvicorn api.main:app --host 0.0.0.0 --port 8000
+python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 --access-log

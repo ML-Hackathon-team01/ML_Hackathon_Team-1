@@ -15,7 +15,18 @@
   },
   "data": {
     "eval_dir_candidates": [
+      "../evaluator_test",
+      "../evaluator_testing",
+      "../eval_test",
+      "../demo_test",
+      "../demo",
+      "../final_test",
       "../Student folder/evaluator_test",
+      "../Student folder/evaluator_testing",
+      "../Student folder/eval_test",
+      "../Student folder/demo_test",
+      "../Student folder/demo",
+      "../Student folder/final_test",
       "../Student folder/student_test"
     ]
   },

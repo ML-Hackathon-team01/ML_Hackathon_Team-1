@@ -4,7 +4,8 @@ Model-Loading & Configuration Logic for PathSnap FastAPI Backend (Laptop 1).
 Handles:
   - Loading deployment/config.json
   - Locating and loading the trained model artifact (.joblib)
-  - Locating the 10-trip evaluation directory (evaluator_test or student_test fallback)
+  - Locating the 10-trip demonstration / evaluator directory (supports PATHSNAP_EVAL_DIR
+    override, nested extracted zip folders, and auto-detection of evaluator/demo folders)
 """
 
 from __future__ import annotations
@@ -29,7 +30,7 @@ def load_config() -> dict[str, Any]:
 
 
 def resolve_model_path(cfg: dict[str, Any]) -> Path:
-    """Resolve trained model artifact path (supports MODEL_PATH env override)."""
+    """Resolve trained model artifact path (supports PATHSNAP_MODEL_PATH env override)."""
     env_override = os.environ.get("PATHSNAP_MODEL_PATH")
     if env_override:
         p = Path(env_override).resolve()
@@ -49,27 +50,70 @@ def resolve_model_path(cfg: dict[str, Any]) -> Path:
     )
 
 
+def _find_trip_file(trip_folder: Path, ext: str) -> Path | None:
+    """Find `<trip_id>.<ext>` or fallback to first `*.<ext>` inside a trip folder."""
+    exact = trip_folder / f"{trip_folder.name}.{ext}"
+    if exact.exists():
+        return exact
+    matches = sorted(trip_folder.glob(f"*.{ext}"))
+    return matches[0] if matches else None
+
+
+def _is_trip_folder(folder: Path) -> bool:
+    """True if folder directly contains .track, .nodes, and .arcs files."""
+    return (
+        folder.is_dir()
+        and _find_trip_file(folder, "track") is not None
+        and _find_trip_file(folder, "nodes") is not None
+        and _find_trip_file(folder, "arcs") is not None
+    )
+
+
+def _unwrap_trip_parent_dir(candidate: Path) -> Path | None:
+    """
+    If `candidate` directly contains trip subfolders, return `candidate`.
+    If `candidate` wraps a single subfolder (common after unzipping, e.g.
+    `evaluator_test/evaluator_test/<trips>`), unwrap automatically.
+    """
+    if not candidate.exists() or not candidate.is_dir():
+        return None
+    subdirs = [d for d in candidate.iterdir() if d.is_dir()]
+    if any(_is_trip_folder(d) for d in subdirs):
+        return candidate
+    if len(subdirs) == 1:
+        inner = subdirs[0]
+        inner_subs = [d for d in inner.iterdir() if d.is_dir()]
+        if any(_is_trip_folder(d) for d in inner_subs):
+            return inner
+    return None
+
+
 def resolve_eval_dir(cfg: dict[str, Any]) -> tuple[Path, str]:
     """
-    Resolve the 10-trip evaluation folder (supports PATHSNAP_EVAL_DIR env override).
-    Prefers `evaluator_test` when present during live evaluation, otherwise falls
-    back cleanly to `student_test` for development & demo testing.
+    Resolve the demonstration / evaluator trip folder:
+      1. Explicit `PATHSNAP_EVAL_DIR` environment variable (recommended for live demo)
+      2. Auto-detect any evaluator/demo folder in workspace or `Student folder`
+      3. Fallback to `student_test` for local development testing
     """
     env_dir = os.environ.get("PATHSNAP_EVAL_DIR")
     if env_dir:
-        p = Path(env_dir).resolve()
-        if p.exists():
-            return p, p.name
-        raise FileNotFoundError(f"PATHSNAP_EVAL_DIR does not exist: {p}")
+        raw_p = Path(env_dir).resolve()
+        unwrapped = _unwrap_trip_parent_dir(raw_p)
+        if unwrapped is not None:
+            return unwrapped, unwrapped.name
+        raise FileNotFoundError(
+            f"PATHSNAP_EVAL_DIR does not contain valid trip folders (.track/.nodes/.arcs): {raw_p}"
+        )
 
     for rel in cfg["data"]["eval_dir_candidates"]:
         candidate = (PROJECT_ROOT / rel).resolve()
-        if candidate.exists() and any(d.is_dir() for d in candidate.iterdir()):
-            return candidate, candidate.name
+        unwrapped = _unwrap_trip_parent_dir(candidate)
+        if unwrapped is not None:
+            return unwrapped, unwrapped.name
 
     raise FileNotFoundError(
-        "No evaluation trip folder found. Set PATHSNAP_EVAL_DIR or place trips in "
-        "`../Student folder/evaluator_test` or `../Student folder/student_test`."
+        "No evaluation trip folder found. Pass `-EvalDir <path>` to start_laptop1_api.ps1 "
+        "or set PATHSNAP_EVAL_DIR to the demonstration dataset folder."
     )
 
 
@@ -118,14 +162,13 @@ class ModelRegistry:
         """List available evaluation trips (IDs and GPS observation counts only)."""
         trips = []
         for folder in sorted(self.eval_dir.iterdir()):
-            if not folder.is_dir():
+            if not _is_trip_folder(folder):
                 continue
             trip_id = folder.name
-            track_file = folder / f"{trip_id}.track"
-            if not track_file.exists():
-                continue
+            track_file = _find_trip_file(folder, "track")
+            assert track_file is not None
             with open(track_file, "r", encoding="utf-8") as f:
-                n_obs = sum(1 for _ in f)
+                n_obs = sum(1 for line in f if line.strip())
             trips.append({
                 "trip_id": trip_id,
                 "n_gps_points": n_obs,

@@ -18,28 +18,32 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import BallTree
 
-from api.model_loader import ModelRegistry
+from api.model_loader import ModelRegistry, _find_trip_file
 
 
 def _load_and_clean_inference_inputs(trip_folder: Path) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Load and clean .track, .nodes, .arcs ONLY (no .route access)."""
-    trip_id = trip_folder.name
+    """Load and clean .track, .nodes, .arcs ONLY (no .route access). Handles tabs or spaces."""
+    track_file = _find_trip_file(trip_folder, "track")
+    nodes_file = _find_trip_file(trip_folder, "nodes")
+    arcs_file = _find_trip_file(trip_folder, "arcs")
+    if not (track_file and nodes_file and arcs_file):
+        raise FileNotFoundError(f"Missing .track/.nodes/.arcs in {trip_folder}")
 
     track = pd.read_csv(
-        trip_folder / f"{trip_id}.track",
-        sep="\t",
+        track_file,
+        sep=r"\s+",
         header=None,
         names=["longitude", "latitude", "timestamp"],
     )
     nodes = pd.read_csv(
-        trip_folder / f"{trip_id}.nodes",
-        sep="\t",
+        nodes_file,
+        sep=r"\s+",
         header=None,
         names=["longitude", "latitude"],
     )
     arcs = pd.read_csv(
-        trip_folder / f"{trip_id}.arcs",
-        sep="\t",
+        arcs_file,
+        sep=r"\s+",
         header=None,
         names=["from_node", "to_node"],
     )
@@ -291,7 +295,7 @@ def run_trip_inference_and_evaluate(registry: ModelRegistry, trip_id: str) -> di
     hmm_continuity = _compute_route_continuity(hmm_arcs, arc_from_map, arc_to_map)
 
     # --- 5. Server-Side Evaluation (Strictly AFTER prediction completes) ---
-    route_file = trip_folder / f"{trip_id}.route"
+    route_file = _find_trip_file(trip_folder, "route")
     eval_metrics: dict[str, Any] = {
         "ground_truth_available": False,
         "classifier_only_top1_accuracy": None,
@@ -304,8 +308,8 @@ def run_trip_inference_and_evaluate(registry: ModelRegistry, trip_id: str) -> di
         "candidate_miss_rate": None,
     }
 
-    if route_file.exists():
-        route_df = pd.read_csv(route_file, header=None, names=["arc_id"]).dropna()
+    if route_file is not None and route_file.exists():
+        route_df = pd.read_csv(route_file, sep=r"\s+", header=None, names=["arc_id"]).dropna()
         ref_arc_set = set(route_df["arc_id"].astype(int).tolist())
 
         # Observation-level Top-1 Accuracy
