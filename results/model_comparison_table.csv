@@ -1,0 +1,6 @@
+Order,Model,Owner,Algorithm Family,Key Configuration,CV Macro F1,CV Macro F1 Std,Train Macro F1,Student-Test Macro F1,Top-1 Accuracy,Route Continuity,Log Loss,Train Time (s),Inference Time (s)
+1,Logistic Regression,Navya,Linear / Probabilistic,"StandardScaler + LogisticRegression(C=1.0, solver=lbfgs, max_iter=500)",0.7008,0.04922,0.71023,0.73623,0.75355,0.7836,0.56425,0.902,0.0082
+2,Decision Tree,Neal,Tree-based,"DecisionTreeClassifier(criterion=gini, max_depth=12, min_samples_leaf=50)",0.69963,0.04738,0.73371,0.73442,0.75945,0.76193,0.55042,10.838,0.0246
+3,Random Forest,Shreyas,Ensemble (Bagging),"RandomForestClassifier(n_estimators=100, max_depth=14, min_samples_leaf=30)",0.70253,0.04733,0.73654,0.73597,0.76383,0.77974,0.53404,121.603,0.6691
+4,SVM (Linear + Platt),Navya,Kernel / Margin-based,"StandardScaler + CalibratedClassifierCV(LinearSVC(C=1.0), method=sigmoid, cv=3)",0.69996,0.04846,0.71036,0.73647,0.75433,0.7871,0.56237,5.637,0.0546
+5,Gradient Boosting,Sohel,Boosting,"HistGB(loss=log_loss, lr=0.08, max_iter=200, max_leaf_nodes=31, max_depth=8, min_samples_leaf=50, l2=1.0)",0.70308,0.04836,0.73055,0.73724,0.76472,0.78308,0.53511,21.309,0.6996
