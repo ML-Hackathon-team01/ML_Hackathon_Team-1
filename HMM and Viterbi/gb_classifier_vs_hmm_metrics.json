@@ -1,0 +1,23 @@
+{
+  "reset_gap_seconds": 60.0,
+  "transition_weights": {
+    "same_arc": 0.85,
+    "directed_connected_arc": 0.14,
+    "disconnected_fallback": 0.01
+  },
+  "classifier_only": {
+    "method": "classifier_only",
+    "observations": 19160,
+    "provisional_top1_match_rate": 0.76195,
+    "route_continuity_all_adjacent_observations": 0.77974,
+    "route_continuity_excluding_long_gaps": 0.77973
+  },
+  "classifier_plus_hmm_viterbi": {
+    "method": "classifier_plus_hmm_viterbi",
+    "observations": 19160,
+    "provisional_top1_match_rate": 0.84619,
+    "route_continuity_all_adjacent_observations": 0.97097,
+    "route_continuity_excluding_long_gaps": 0.97096
+  },
+  "label_warning": "The current labels are provisional: label 1 means the arc appears somewhere in that trip's reference route, not necessarily at that specific GPS observation. Treat match rates as provisional."
+}
