@@ -1,4 +1,4 @@
-﻿# Start Laptop 1 — PathSnap FastAPI Backend
+# Start Laptop 1 — PathSnap FastAPI Backend
 # Usage (default auto-detect):
 #   .\deployment\start_laptop1_api.ps1
 # Usage (explicit evaluator demonstration dataset folder):

@@ -19,6 +19,8 @@ student_test/
 # VS Code
 .vscode/
 
+# Runtime logs
+logs/
 # System files
 .DS_Store
 Thumbs.db
